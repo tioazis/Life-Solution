@@ -14,9 +14,10 @@ class ViewController: UIViewController {
     private var state = 0
     private var maxScore = 0 //score maksimal
     private var score = 0 //score existinv
+    private var wrong = 0
     
-    private let spiritText : [String] = ["Good...","Nice!", "Aw..", "Yeah...", "Go Ahead..."]
-    private let almostText = ["Almost...", "Almost done..."]
+    private let spiritText = ["Good...","Nice!", "Aw..", "Yeah...", "Go Ahead..."]
+    private let almostText = ["almost complete!", "Almost done!", "You can do it!"]
     private let finishText = ["Congratulation", "Key of All Solution", "in our lives", "is", "patience"]
     private let howText = ["Just...", "Be Patience"]
     
@@ -30,26 +31,44 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.maxScore = Int.random(in: 9...15)
+        print("max score \(self.maxScore)")
         // Do any additional setup after loading the view.
         //fontSizeAnimation(label: textLabel)
         tutorial()
-        
-        
-
     }
 
     @IBAction func actionBtn(_ sender: Any) {
-        print("actionBTN Clicked")
+        print("state \(state) score \(score)")
         state = 1
-        clicked += 1
-        action()
+        
+        
+        if state == 1 && score < maxScore{
+            if score >= (maxScore-3){
+                action(textArray: almostText)
+            } else if maxScore != 3{
+                action(textArray: spiritText)
+            }
+        }
         
         
     }
     
     @IBAction func blackBG(_ sender: Any) {
-        print("blackBG Clicked")
         hint()
+        if state == 0{
+            wrong += 1
+            
+            switch wrong {
+            case 3,6,9 :
+                print("wrong")
+            case 10 :
+                print("be patient")
+                wrong = 0
+            default:
+                print("default")
+            }
+        }
     }
     
     
@@ -75,6 +94,7 @@ extension ViewController {
         //result
         //newgame
     }
+    
     //MARK : ngasih hint ketika di klik sembarang
     private func hint(){
         if state != 1{
@@ -95,36 +115,12 @@ extension ViewController {
     }
     
     //MARK : aksi ketika dipencet tombol
-    private func action(){
-        let textFrame = CGRect(x: 0, y: (self.view.bounds.height - 100)/2, width: self.view.frame.width, height: 50)
+    private func action(textArray:[String]){
+        let textFrame = CGRect(x: 0, y: (self.view.bounds.height - 100)/2, width: self.view.frame.width, height: 80)
         let time = TimeInterval(Float.random(in: 0.1...5))
         
         if state == 1 {
-            self.actionBtn.layer.cornerRadius = 1
-            UIView.animate(withDuration: time, animations: {
-                self.actionBtn.layer.backgroundColor = #colorLiteral(red: 0.9999960065, green: 1, blue: 1, alpha: 1)
-                self.actionBtn.frame = CGRect(x: 0, y: 0, width: 414, height: 898)
-                self.actionBtn.layer.cornerRadius = self.actionBtn.frame.width/7
-                
-            }, completion: { finished in
-                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now()) {
-                    //animation spacing could be a negative value of half the animation to appear to fade between strings
-                    
-                }
-                
-                UIView.animate(withDuration: TimeInterval(Float.random(in: 0.1...0.2)), animations: {
-                    self.animateText(subtitles: [self.spiritText[Int.random(in: 0...self.spiritText.count-1)]], duration: 1, animationSpacing: 0, frame: textFrame, targetLayer: self.view.layer)
-                }, completion: {
-                    finished in
-                    UIView.animateKeyframes(withDuration: TimeInterval(Float.random(in: 0.1...0.2)), delay: 1.5, animations: {
-                        self.actionBtn.frame = CGRect(x: 157, y: 567, width: 121, height: 121)
-                        self.actionBtn.layer.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
-                        self.actionBtn.layer.cornerRadius = 1
-                        self.state = 0
-                    })
-                })
-                
-            })
+            animateAction(time: time, frame: textFrame, textArray: textArray)
         }
     }
     
@@ -142,6 +138,21 @@ extension ViewController {
             //animation spacing could be a negative value of half the animation to appear to fade between strings
             self.animateText(subtitles: self.howText, duration: 3, animationSpacing: 0, frame: textFrame, targetLayer: self.view.layer)
         }
+    }
+    
+    private func win(){
+        let textFrame = CGRect(x: 0, y: (self.view.bounds.height - 100)/2, width: self.view.frame.width, height: 100)
+        state = 4
+        
+        UIView.animate(withDuration: 2, delay: 0, animations: {
+            self.actionBtn.layer.backgroundColor = #colorLiteral(red: 0.4745098054, green: 0.8392156959, blue: 0.9764705896, alpha: 1)
+            self.actionBtn.frame = CGRect(x: 0, y: 0, width: 414, height: 898)
+            self.actionBtn.layer.cornerRadius = self.actionBtn.frame.width/9
+        }, completion:{ finished in
+            self.animateText(subtitles: self.finishText, duration: 3, animationSpacing: 0, frame: textFrame, targetLayer: self.view.layer)
+        })
+        
+        
         
     }
 }
@@ -149,29 +160,43 @@ extension ViewController {
 //####################################################
 // MARK: Animation
 extension ViewController {
-    private func fontSizeAnimation(label: UILabel) {
-        let textLayer = CATextLayer()
-        //textLayer.backgroundColor = UIColor.gray.cgColor
-        
-        textLayer.frame = label.layer.frame
-        textLayer.string = "Just Be Patient"
-        textLayer.position = label.layer.position
-        textLayer.font = label.font
-        textLayer.alignmentMode = CATextLayerAlignmentMode(rawValue: "center")
-        
-        view.layer.addSublayer(textLayer)
-        
-        // Animate font size
-        let animation = CABasicAnimation(keyPath: "fontSize")
-        animation.toValue = CGFloat(30)
-        animation.duration = 5.0
-        textLayer.add(animation, forKey: "label")
-        
-        //Animate Font color
-        let animation1 = CABasicAnimation(keyPath: "foregroundColor")
-        animation1.toValue = UIColor.black.cgColor
-        animation1.duration = 2.0
-        textLayer.add(animation1, forKey: "label")
+    
+    func animateAction(time:TimeInterval, frame:CGRect, textArray:[String]){
+        let textFrame = frame
+        self.actionBtn.layer.cornerRadius = 1
+        UIView.animate(withDuration: time, animations: {
+            self.actionBtn.layer.backgroundColor = #colorLiteral(red: 0.9999960065, green: 1, blue: 1, alpha: 1)
+            self.actionBtn.frame = CGRect(x: 0, y: 0, width: 414, height: 898)
+            self.actionBtn.layer.cornerRadius = self.actionBtn.frame.width/7
+            
+        }, completion: { finished in
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now()) {
+                //animation spacing could be a negative value of half the animation to appear to fade between strings
+                
+            }
+            
+            UIView.animate(withDuration: TimeInterval(Float.random(in: 0.1...0.2)), animations: {
+                self.animateText(subtitles: [textArray[Int.random(in: 0...textArray.count-1)]], duration: 1, animationSpacing: 0, frame: textFrame, targetLayer: self.view.layer)
+            }, completion: {
+                finished in
+                
+                self.score += 1
+                UIView.animateKeyframes(withDuration: TimeInterval(Float.random(in: 0.1...0.2)), delay: 1.5, animations: {
+                    self.actionBtn.frame = CGRect(x: 157, y: 567, width: 121, height: 121)
+                    self.actionBtn.layer.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
+                    self.actionBtn.layer.cornerRadius = 1
+                    self.state = 0
+                },completion:{ finished in
+                        if self.score == self.maxScore{
+                        self.win()
+                        self.state = 4
+                    }
+                })
+                
+                
+            })
+            
+        })
     }
     
     func animateText(subtitles:[String],
@@ -195,6 +220,8 @@ extension ViewController {
         }
     }
     
+    
+    
     func getSubtitlesAnimation(duration: CFTimeInterval,startTime:Double)->CAKeyframeAnimation {
         let animation = CAKeyframeAnimation(keyPath:"opacity")
         animation.duration = duration
@@ -217,4 +244,18 @@ extension ViewController {
         return animation
     }
     
+    
+    
 }
+
+
+/*
+ State
+ 0. Tutorial
+ 1. Action
+ 2. Bored
+ 3. Unpatience
+ 4. Win
+ 5. Result
+ 
+ */
