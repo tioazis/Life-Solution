@@ -85,16 +85,6 @@ extension ViewController {
         self.score = 0
     }
     
-    func gameLoop(){
-        //init timer
-        //newgame
-        //tutorial
-        //startGame
-        //finish
-        //result
-        //newgame
-    }
-    
     //MARK : ngasih hint ketika di klik sembarang
     private func hint(){
         if state != 1{
@@ -127,8 +117,6 @@ extension ViewController {
     private func tutorial(){
         let textFrame = CGRect(x: 0, y: (self.view.bounds.height - 100)/2, width: self.view.frame.width, height: 50)
         
-        
-        
         UIView.animate(withDuration: 2, delay: 5, animations: {
             self.blackBG.layer.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
             
@@ -152,12 +140,10 @@ extension ViewController {
             self.animateText(subtitles: self.finishText, duration: 3, animationSpacing: 0, frame: textFrame, targetLayer: self.view.layer)
         })
         
-        
-        
     }
 }
 
-//####################################################
+// ####################################################
 // MARK: Animation
 extension ViewController {
     
@@ -172,9 +158,7 @@ extension ViewController {
         }, completion: { finished in
             DispatchQueue.main.asyncAfter(deadline: DispatchTime.now()) {
                 //animation spacing could be a negative value of half the animation to appear to fade between strings
-                
             }
-            
             UIView.animate(withDuration: TimeInterval(Float.random(in: 0.1...0.2)), animations: {
                 self.animateText(subtitles: [textArray[Int.random(in: 0...textArray.count-1)]], duration: 1, animationSpacing: 0, frame: textFrame, targetLayer: self.view.layer)
             }, completion: {
@@ -192,10 +176,7 @@ extension ViewController {
                         self.state = 4
                     }
                 })
-                
-                
             })
-            
         })
     }
     
@@ -206,6 +187,7 @@ extension ViewController {
         for x in 0..<subtitles.count{
             let string = subtitles[x]
             let textLayer = CATextLayer()
+            
             textLayer.frame = frame
             textLayer.string = string
             textLayer.font = UIFont.systemFont(ofSize: 20)
@@ -219,8 +201,6 @@ extension ViewController {
             currentTime += duration + animationSpacing
         }
     }
-    
-    
     
     func getSubtitlesAnimation(duration: CFTimeInterval,startTime:Double)->CAKeyframeAnimation {
         let animation = CAKeyframeAnimation(keyPath:"opacity")
@@ -245,17 +225,16 @@ extension ViewController {
     }
     
     
-    
 }
 
 
 /*
  State
+//
  0. Tutorial
  1. Action
  2. Bored
  3. Unpatience
  4. Win
  5. Result
- 
  */
